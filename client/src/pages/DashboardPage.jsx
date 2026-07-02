@@ -287,7 +287,7 @@ const DashboardPage = () => {
                       <span className="badge badge-primary">Available</span>
                     )}
                     <h3>{plan.name}</h3>
-                    <p className="plan-price">{plan.price}<span>/month</span></p>
+                    <p className="plan-price">{plan.price}<span>{plan.priceLabel || '/session'}</span></p>
                   </div>
                   <p className="plan-desc">{plan.description}</p>
                   <ul className="plan-features">

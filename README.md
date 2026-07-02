@@ -158,8 +158,8 @@ VITE_FIREBASE_APP_ID=your_firebase_app_id
 - ✅ **Hiring Eligibility Status** — Verified by Credence AI
 
 ### 💼 Subscription Plans
-- ✅ **Mentorship Plan (₹2,999)** — 1:1 session with industry expert, career guidance, mentor-led skill assessment. Available to all users.
-- ✅ **Hiring Plan (₹4,999)** — Company referrals to MOU-signed partner firms. **Locked until score ≥ 80%** — ensures only truly ready candidates get referred.
+- ✅ **Mentorship Plan (₹500/session)** — A one-time 1:1 session with an industry expert. Get a clear guidance path and learn what changed during your break. Available to all users.
+- ✅ **Hiring Plan (₹2,500/session)** — One-time referral to MOU-signed partner companies matched to your verified Credence score. **Locked until score ≥ 80%** — ensures only truly ready candidates get referred.
 
 ### 🔥 Gamification
 - ✅ **Phoenix Streak System** — Daily comeback streak with unique milestones
