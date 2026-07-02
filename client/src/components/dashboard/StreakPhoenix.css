@@ -1,0 +1,133 @@
+/* ===== PHOENIX STREAK ANIMATION ===== */
+.phoenix-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* Glow */
+.phoenix-glow {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  filter: blur(15px);
+}
+
+.level-1 .phoenix-glow { opacity: 0.15; }
+.level-2 .phoenix-glow { opacity: 0.25; animation: phoenixPulse 3s ease-in-out infinite; }
+.level-3 .phoenix-glow { opacity: 0.35; animation: phoenixPulse 2s ease-in-out infinite; }
+.level-4 .phoenix-glow { opacity: 0.5; animation: phoenixPulse 1.5s ease-in-out infinite; width: 100px; height: 100px; }
+
+@keyframes phoenixPulse {
+  0%, 100% { transform: scale(1); opacity: var(--base-opacity, 0.25); }
+  50% { transform: scale(1.2); opacity: calc(var(--base-opacity, 0.25) + 0.15); }
+}
+
+/* Emoji */
+.phoenix-emoji {
+  font-size: 40px;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.5s ease;
+}
+
+.level-0 .phoenix-emoji {
+  filter: grayscale(1);
+  opacity: 0.3;
+}
+
+.level-1 .phoenix-emoji {
+  animation: phoenixFloat 4s ease-in-out infinite;
+}
+
+.level-2 .phoenix-emoji {
+  animation: phoenixFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 107, 46, 0.4));
+}
+
+.level-3 .phoenix-emoji {
+  animation: phoenixFloat 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(123, 47, 252, 0.5));
+}
+
+.level-4 .phoenix-emoji {
+  animation: phoenixFloat 2s ease-in-out infinite, phoenixSpin 8s linear infinite;
+  filter: drop-shadow(0 0 16px rgba(0, 255, 136, 0.6));
+}
+
+@keyframes phoenixFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes phoenixSpin {
+  0% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-6px) rotate(0deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(-6px) rotate(0deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* Ring */
+.phoenix-ring {
+  position: absolute;
+  width: 96px;
+  height: 96px;
+  z-index: 1;
+}
+
+.ring-fill {
+  transition: stroke-dasharray 1s ease;
+}
+
+.level-2 .ring-fill,
+.level-3 .ring-fill,
+.level-4 .ring-fill {
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+/* Particles */
+.phoenix-particle {
+  position: absolute;
+  bottom: 10%;
+  left: var(--px);
+  width: var(--size);
+  height: var(--size);
+  background: var(--color);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleRise var(--duration) ease-out var(--delay) infinite;
+}
+
+@keyframes particleRise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(1);
+  }
+  20% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.3);
+  }
+}
+
+/* Level name */
+.phoenix-level-name {
+  position: absolute;
+  bottom: -8px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  z-index: 2;
+}

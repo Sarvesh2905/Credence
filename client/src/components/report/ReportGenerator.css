@@ -1,0 +1,339 @@
+/* ===== REPORT GENERATOR ===== */
+.report-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 8, 15, 0.95);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.report-modal {
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.report-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-card);
+}
+
+.report-toolbar h3 {
+  font-size: var(--fs-lg);
+}
+
+.report-toolbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.report-preview-scroll {
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* Report Content — designed to look like a professional document */
+.report-content {
+  background: #06080f;
+  color: #e0e0e0;
+  padding: 48px;
+  font-family: 'Inter', sans-serif;
+  min-height: 800px;
+}
+
+/* Header */
+.report-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 32px;
+  border-bottom: 2px solid #1e293b;
+  margin-bottom: 32px;
+}
+
+.report-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.report-logo {
+  font-size: 36px;
+  background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.report-brand h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  line-height: 1;
+}
+
+.report-brand span {
+  font-size: 12px;
+  color: #5a6080;
+  letter-spacing: 1px;
+}
+
+.report-meta {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #8892b0;
+}
+
+/* Section */
+.report-section {
+  margin-bottom: 32px;
+}
+
+.report-section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1e293b;
+}
+
+/* Profile Grid */
+.report-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.report-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-size: 11px;
+  color: #5a6080;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.field-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f0f4ff;
+}
+
+/* Scores Row */
+.report-scores-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.report-score-box {
+  text-align: center;
+  padding: 24px 16px;
+  background: #0f1528;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+}
+
+.report-score-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 42px;
+  font-weight: 900;
+  display: block;
+  line-height: 1;
+}
+
+.report-score-name {
+  font-size: 11px;
+  color: #5a6080;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 8px;
+  display: block;
+}
+
+/* Table */
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.report-table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: #0f1528;
+  color: #8892b0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.report-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #0f1528;
+  color: #c0c0c0;
+}
+
+/* Skill Grid */
+.report-skill-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.report-skill-item {
+  padding: 8px 0;
+}
+
+.report-skill-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #8892b0;
+  margin-bottom: 4px;
+}
+
+.report-skill-bar {
+  height: 6px;
+  background: #1e293b;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.report-skill-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+/* Badges */
+.report-badges {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.report-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #0f1528;
+  border-radius: 8px;
+}
+
+.badge-icon-lg {
+  font-size: 28px;
+}
+
+.badge-name {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  color: #f0f4ff;
+}
+
+.badge-desc {
+  font-size: 12px;
+  color: #5a6080;
+}
+
+/* Eligibility */
+.report-eligibility {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #1e293b;
+}
+
+.report-eligibility.eligible {
+  background: rgba(0, 255, 136, 0.05);
+  border-color: rgba(0, 255, 136, 0.2);
+}
+
+.report-eligibility.not-eligible {
+  background: rgba(90, 96, 128, 0.1);
+}
+
+.eligibility-icon {
+  font-size: 32px;
+}
+
+.report-eligibility h3 {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.report-eligibility p {
+  font-size: 13px;
+  color: #8892b0;
+}
+
+/* Footer */
+.report-footer {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 2px solid #1e293b;
+  text-align: center;
+}
+
+.report-verification p {
+  font-size: 12px;
+  color: #5a6080;
+  margin-bottom: 4px;
+}
+
+.report-disclaimer {
+  font-size: 11px !important;
+  color: #3d4566 !important;
+  font-style: italic;
+  margin-top: 8px !important;
+}
+
+.report-brand-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #5a6080;
+}
+
+.report-logo-sm {
+  background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 18px;
+}
