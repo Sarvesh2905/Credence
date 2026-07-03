@@ -13,7 +13,7 @@
 ---
 
 ## 🌐 Live Demo
-- **Frontend (Vercel):** [https://credence-nine.vercel.app](https://credence-nine.vercel.app)
+- **Frontend (Netlify):** [https://credence-codezap.netlify.app](https://credence-codezap.netlify.app)
 - **Backend API (Render):** [https://credence-server-5r0p.onrender.com](https://credence-server-5r0p.onrender.com)
 
 ---
