@@ -30,9 +30,17 @@ const createProfile = async (req, res) => {
       linkedIn, github, preferredCompanies,
     } = req.body;
 
+    // Safe parser: handles JSON arrays, comma-separated strings, or plain text
+    const parseArrayField = (val) => {
+      if (!val) return [];
+      if (Array.isArray(val)) return val;
+      try { return JSON.parse(val); } catch { /* not JSON */ }
+      return val.split(',').map(s => s.trim()).filter(Boolean);
+    };
+
     // Parse array fields
-    const interests = typeof areaOfInterest === 'string' ? JSON.parse(areaOfInterest) : areaOfInterest || [];
-    const companies = typeof preferredCompanies === 'string' ? JSON.parse(preferredCompanies) : preferredCompanies || [];
+    const interests = parseArrayField(areaOfInterest);
+    const companies = parseArrayField(preferredCompanies);
 
     let resumeUrl = null;
     let resumePublicId = null;
@@ -69,13 +77,13 @@ const createProfile = async (req, res) => {
       gender,
       age: parseInt(age),
       careerGap: {
-        days: parseInt(careerGapDays),
-        from: new Date(careerGapFrom),
-        to: new Date(careerGapTo),
+        days: parseInt(careerGapDays) || 0,
+        ...(careerGapFrom ? { from: new Date(careerGapFrom) } : {}),
+        ...(careerGapTo   ? { to:   new Date(careerGapTo)   } : {}),
       },
       breakReason: breakReason || null,
       areaOfInterest: interests,
-      experience: parseFloat(experience),
+      experience: parseFloat(experience) || 0,
       pastRole,
       pastCompany,
       domain,

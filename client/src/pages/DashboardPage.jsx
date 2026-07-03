@@ -2,17 +2,20 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { dashboardAPI, assessmentAPI } from '../services/api';
-import { 
+import {
   HiOutlineUser, HiOutlineShieldCheck, HiOutlineChartBar, HiOutlineFire,
   HiOutlineDocumentReport, HiOutlineLightningBolt, HiOutlineLogout,
   HiOutlineLockClosed, HiOutlineLockOpen, HiOutlineArrowRight,
   HiOutlineClipboardCheck, HiOutlineDownload, HiOutlineStar,
-  HiOutlineBadgeCheck, HiOutlineAcademicCap
+  HiOutlineBadgeCheck, HiOutlineAcademicCap, HiOutlineBriefcase,
+  HiOutlineSparkles, HiOutlinePresentationChartLine, HiOutlineTrendingUp,
+  HiOutlineIdentification, HiOutlineOfficeBuilding
 } from 'react-icons/hi';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import toast from 'react-hot-toast';
 import ReportGenerator from '../components/report/ReportGenerator';
 import StreakPhoenix from '../components/dashboard/StreakPhoenix';
+import BookingModal from '../components/dashboard/BookingModal';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
@@ -22,6 +25,7 @@ const DashboardPage = () => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [bookingPlan, setBookingPlan] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -58,12 +62,12 @@ const DashboardPage = () => {
     }
   };
 
-  const getStreakEmoji = (count) => {
-    if (count >= 90) return '🦅';
-    if (count >= 30) return '⚡';
-    if (count >= 7) return '🔥';
-    if (count >= 1) return '✨';
-    return '💤';
+  const getStreakIcon = (count) => {
+    if (count >= 90) return <HiOutlineLightningBolt style={{ color: '#6366F1' }} />;
+    if (count >= 30) return <HiOutlineFire style={{ color: '#F59E0B' }} />;
+    if (count >= 7)  return <HiOutlineFire style={{ color: '#06B6D4' }} />;
+    if (count >= 1)  return <HiOutlineStar style={{ color: '#6366F1' }} />;
+    return <HiOutlineFire style={{ color: '#9CA3AF' }} />;
   };
 
   if (loading) {
@@ -95,7 +99,6 @@ const DashboardPage = () => {
 
   return (
     <div className="dashboard">
-      {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-logo">
           <span className="logo-icon">◆</span>
@@ -110,13 +113,13 @@ const DashboardPage = () => {
             <HiOutlineClipboardCheck /> Take Assessment
           </button>
           <button className={`nav-item ${activeTab === 'passport' ? 'active' : ''}`} onClick={() => setActiveTab('passport')}>
-            <HiOutlineShieldCheck /> Passport
+            <HiOutlineIdentification /> Passport
           </button>
           <button className={`nav-item ${activeTab === 'plans' ? 'active' : ''}`} onClick={() => setActiveTab('plans')}>
             <HiOutlineStar /> Plans
           </button>
           <button className={`nav-item ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
-            <HiOutlineLightningBolt /> Analytics
+            <HiOutlineTrendingUp /> Analytics
           </button>
         </nav>
 
@@ -132,11 +135,11 @@ const DashboardPage = () => {
         {/* Top Bar */}
         <header className="dash-header">
           <div>
-            <h1>Welcome back, <span className="gradient-text">{profile?.name?.split(' ')[0] || user?.username}</span></h1>
+            <h1 style={{ fontFamily:'var(--font-display)', fontWeight:300 }}>Welcome back, <span style={{ color:'var(--slate)' }}>{profile?.name?.split(' ')[0] || user?.username}</span></h1>
             <p>Your career comeback journey continues.</p>
           </div>
-          <div className="header-streak glass-card">
-            <span className="streak-emoji">{getStreakEmoji(streak?.currentStreak)}</span>
+          <div className="header-streak">
+            <span style={{ fontSize: 18, display: 'flex', color: 'var(--accent-primary)' }}>{getStreakIcon(streak?.currentStreak)}</span>
             <div>
               <span className="streak-count">{streak?.currentStreak || 0}</span>
               <span className="streak-label">Day Streak</span>
@@ -146,115 +149,203 @@ const DashboardPage = () => {
 
         {/* ===== OVERVIEW TAB ===== */}
         {activeTab === 'overview' && (
-          <div className="dash-content animate-fadeIn">
-            {/* Stats Grid */}
-            <div className="stats-grid">
-              <div className="stat-card glass-card">
-                <div className="stat-icon" style={{ background: 'rgba(0, 212, 255, 0.1)', color: 'var(--accent-primary)' }}>
-                  <HiOutlineClipboardCheck />
-                </div>
-                <div className="stat-info">
-                  <span className="stat-number">{stats?.totalAssessments || 0}</span>
-                  <span className="stat-label-text">Assessments Taken</span>
-                </div>
+          <div className="overview-bento animate-fadeIn">
+
+            {/* ── LEFT COL 1: Profile Card ── */}
+            <div className="bento-card bento-profile">
+              <p className="profile-name">{profile?.name || user?.username}</p>
+              <p className="profile-role">
+                {profile?.pastRole && `${profile.pastRole}`}
+                {profile?.pastCompany && ` · ${profile.pastCompany}`}
+              </p>
+              <div className="profile-field-group">
+                {profile?.careerGap?.days && (
+                  <div className="profile-field">
+                    <label>Career Gap</label>
+                    <span>{profile.careerGap.days} days</span>
+                  </div>
+                )}
+                {profile?.breakReason && (
+                  <div className="profile-field">
+                    <label>Break Reason</label>
+                    <span>{profile.breakReason}</span>
+                  </div>
+                )}
+                {profile?.domain && (
+                  <div className="profile-field">
+                    <label>Domain</label>
+                    <span>{profile.domain}</span>
+                  </div>
+                )}
+                {profile?.experience != null && (
+                  <div className="profile-field">
+                    <label>Experience</label>
+                    <span style={{ fontSize: 'var(--fs-xs)', lineHeight: 1.5 }}>
+                      {profile.experience} {profile.experience === 1 ? 'year' : 'years'}
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="stat-card glass-card">
-                <div className="stat-icon" style={{ background: 'rgba(0, 255, 136, 0.1)', color: 'var(--accent-tertiary)' }}>
-                  <HiOutlineChartBar />
+            </div>
+
+
+            {/* ── LEFT COL 2: Subscription Plans ── */}
+            <div className="bento-card bento-plans">
+              <p className="plans-card-title">Subscription Plans</p>
+              {subscriptions.map((plan, i) => (
+                <div key={i} className="plan-row">
+                  <span>{plan.name}</span>
+                  {plan.isLocked ? (
+                    <div className="plan-locked-row">
+                      <span style={{ display:'flex', alignItems:'center', gap:4, color:'var(--text-muted)' }}>
+                        <HiOutlineLockClosed style={{ fontSize:12 }} />
+                        <span className="plan-lock-note">{plan.unlockRequirement}</span>
+                      </span>
+                    </div>
+                  ) : plan.isActive ? (
+                    <span className="plan-active-badge">Active</span>
+                  ) : (
+                    <span style={{ fontSize:'var(--fs-xs)', color:'var(--slate)' }}>Available</span>
+                  )}
                 </div>
-                <div className="stat-info">
-                  <span className="stat-number">{stats?.latestScore || '—'}</span>
-                  <span className="stat-label-text">Latest Score</span>
-                </div>
-              </div>
-              <div className="stat-card glass-card">
-                <div className="stat-icon" style={{ background: 'rgba(123, 47, 252, 0.1)', color: 'var(--accent-secondary)' }}>
-                  <HiOutlineFire />
-                </div>
-                <div className="stat-info">
-                  <span className="stat-number">{streak?.longestStreak || 0}</span>
-                  <span className="stat-label-text">Longest Streak</span>
-                </div>
-              </div>
-              <div className="stat-card glass-card">
-                <div className="stat-icon" style={{ background: stats?.hiringEligible ? 'rgba(0, 255, 136, 0.1)' : 'rgba(90, 96, 128, 0.1)', color: stats?.hiringEligible ? 'var(--accent-tertiary)' : 'var(--text-tertiary)' }}>
-                  {stats?.hiringEligible ? <HiOutlineLockOpen /> : <HiOutlineLockClosed />}
-                </div>
-                <div className="stat-info">
-                  <span className="stat-number">{stats?.hiringEligible ? 'Eligible' : 'Locked'}</span>
-                  <span className="stat-label-text">Hiring Plan</span>
+              ))}
+            </div>
+
+            {/* ── LEFT COL 3: Streak ── */}
+            <div className="bento-card bento-streak">
+              <p className="streak-title">Daily Streak</p>
+              <div className="streak-card-inner">
+                <StreakPhoenix streak={streak?.currentStreak || 0} />
+                <div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--fs-3xl)', fontWeight: 400, color: 'var(--slate)', lineHeight: 1 }}>
+                    {streak?.currentStreak || 0}
+                  </div>
+                  <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.07em', marginTop: 3 }}>Days</div>
+                  {streak?.longestStreak > 0 && (
+                    <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', marginTop: 6 }}>
+                      Best: {streak.longestStreak}d
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Action Cards */}
-            <div className="action-grid">
-              <div className="action-card glass-card take-assessment" onClick={() => setActiveTab('assessment')}>
-                <div className="action-icon-large">🧠</div>
-                <h3>Take Assessment</h3>
-                <p>Get a personalized, AI-driven assessment tailored to your target role.</p>
-                <span className="action-link">Start Now <HiOutlineArrowRight /></span>
+            {/* ── CENTER: Take Assessment ── */}
+            <div className="bento-card bento-assessment">
+              <p className="assessment-card-header">Start Your Credence Journey</p>
+              <div className="assessment-cta-area">
+                <button
+                  className="btn btn-primary"
+                  style={{ fontSize: 'var(--fs-xl)', fontFamily: 'var(--font-display)', fontStyle:'italic', padding:'16px 0', width:'100%', borderRadius:'var(--radius-md)' }}
+                  onClick={() => setActiveTab('assessment')}
+                >
+                  Take Assessment
+                </button>
               </div>
 
-              <div className="action-card glass-card" onClick={() => setActiveTab('passport')}>
-                <div className="action-icon-large">🎫</div>
-                <h3>View Passport</h3>
-                <p>Check your Career Readiness Passport with scores and growth graph.</p>
-                <span className="action-link">View <HiOutlineArrowRight /></span>
-              </div>
+              <p className="assessment-sub-label">Personalized Assessment — {profile?.domain || 'Your Domain'}</p>
+              <p style={{ fontSize:'var(--fs-xs)', color:'var(--text-muted)', marginBottom: 10 }}>Seek Role (or upload JD)</p>
+              <input
+                className="seek-role-input"
+                placeholder="Seek Role (paste JD or upload PDF)"
+                readOnly
+                onClick={() => setActiveTab('assessment')}
+              />
 
-              <div className="action-card glass-card" onClick={() => setActiveTab('analytics')}>
-                <div className="action-icon-large">📊</div>
-                <h3>Analytics</h3>
-                <p>Track your performance growth across all assessments.</p>
-                <span className="action-link">Analyze <HiOutlineArrowRight /></span>
-              </div>
-            </div>
-
-            {/* Streak Banner */}
-            {streak && (
-              <div className="streak-banner glass-card">
-                <div className="streak-flame-container">
-                  <StreakPhoenix streak={streak.currentStreak} />
-                </div>
-                <div className="streak-info">
-                  <h3>Career Comeback Streak</h3>
-                  <p>{streak.currentStreak} day{streak.currentStreak !== 1 ? 's' : ''} and counting! Keep the momentum going.</p>
-                  <div className="streak-milestones">
-                    {['7 Day', '30 Day', '90 Day'].map((milestone, i) => {
-                      const thresholds = [7, 30, 90];
-                      const achieved = streak.currentStreak >= thresholds[i];
-                      return (
-                        <div key={i} className={`milestone ${achieved ? 'achieved' : ''}`}>
-                          <span>{['🔥', '⚡', '🦅'][i]}</span>
-                          <span>{milestone}</span>
-                        </div>
-                      );
-                    })}
+              {stats && (
+                <div style={{ marginTop: 20, display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap: 10 }}>
+                  <div style={{ background:'var(--bg-secondary)', borderRadius:'var(--radius-md)', padding:'12px', border:'1px solid var(--border-primary)', textAlign:'center' }}>
+                    <div style={{ fontFamily:'var(--font-display)', fontSize:'var(--fs-2xl)', color:'var(--obsidian)' }}>{stats.totalAssessments || 0}</div>
+                    <div style={{ fontSize:'var(--fs-xs)', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.06em' }}>Assessments</div>
+                  </div>
+                  <div style={{ background:'var(--bg-secondary)', borderRadius:'var(--radius-md)', padding:'12px', border:'1px solid var(--border-primary)', textAlign:'center' }}>
+                    <div style={{ fontFamily:'var(--font-display)', fontSize:'var(--fs-2xl)', color:'var(--slate)' }}>{stats.latestScore || '—'}</div>
+                    <div style={{ fontSize:'var(--fs-xs)', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.06em' }}>Latest Score</div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
-            {/* Growth Chart Preview */}
-            {growthData.length > 0 && (
-              <div className="chart-card glass-card">
-                <h3>Performance Growth</h3>
-                <ResponsiveContainer width="100%" height={250}>
+            {/* ── RIGHT: Passport Scores ── */}
+            <div className="bento-card bento-passport">
+              {passport && passport.assessments?.length > 0 ? (
+                <>
+                  <p className="passport-label">Your Credence Passport</p>
+
+                  {/* Timeline bar */}
+                  <div className="timeline-labels">
+                    {passport.assessments.slice(-3).map((a, i) => (
+                      <span key={i}>{new Date(a.date).toLocaleDateString('en-US', { month:'short', day:'numeric' })}</span>
+                    ))}
+                  </div>
+                  <div className="timeline-track" style={{ marginBottom: 16, height: 4, background:'var(--border-primary)', borderRadius: 99, position:'relative' }}>
+                    <div className="timeline-fill" style={{ height:'100%', width:`${Math.min((passport.currentHighestScore / 100) * 100, 100)}%`, background:'var(--slate)', borderRadius: 99 }} />
+                    <div className="timeline-dot" style={{ right: 0, top:'50%', transform:'translateY(-50%)' }} />
+                  </div>
+
+                  {/* Skill pills */}
+                  {passport.assessments[passport.assessments.length - 1]?.skillBreakdown?.slice(0, 4).map((s, i) => (
+                    <div key={i} style={{ marginBottom: 8 }}>
+                      <div style={{ display:'flex', justifyContent:'space-between', fontSize:'var(--fs-xs)', color:'var(--text-secondary)', marginBottom: 3 }}>
+                        <span>{s.skill}</span>
+                        <span style={{ fontWeight: 600, color:'var(--slate)' }}>{s.score}</span>
+                      </div>
+                      <div className="progress-bar">
+                        <div className="progress-bar-fill" style={{ width:`${(s.score / (s.maxScore || 100)) * 100}%` }} />
+                      </div>
+                    </div>
+                  ))}
+
+                  <p className="passport-overall">Your Passport Overall: {passport.currentHighestScore}%</p>
+                  <div className="progress-bar" style={{ marginBottom: 14 }}>
+                    <div className="progress-bar-fill" style={{ width:`${passport.currentHighestScore}%` }} />
+                  </div>
+
+                  <button className="download-report-btn" onClick={() => setActiveTab('passport')}>
+                    <HiOutlineDownload /> Download Career Readiness Report
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="passport-label">Your Credence Passport</p>
+                  <div style={{ textAlign:'center', padding:'32px 0', color:'var(--text-muted)' }}>
+                    <HiOutlineIdentification style={{ fontSize: 36, marginBottom: 8 }} />
+                    <p style={{ fontSize:'var(--fs-sm)' }}>Complete your first assessment<br/>to generate your passport.</p>
+                    <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => setActiveTab('assessment')}>
+                      Start Assessment
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* ── BOTTOM: Analytics Chart ── */}
+            <div className="bento-card bento-analytics">
+              <div className="analytics-header">
+                <span className="analytics-title">Analytics</span>
+                <div className="analytics-legend">
+                  <span><span className="legend-dot" style={{ background:'var(--slate)' }} />1st Assessment</span>
+                  <span><span className="legend-dot" style={{ background:'var(--gold)' }} />2nd Assessment</span>
+                </div>
+              </div>
+              {growthData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={180}>
                   <LineChart data={growthData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-primary)" />
-                    <XAxis dataKey="name" stroke="var(--text-tertiary)" fontSize={12} />
-                    <YAxis stroke="var(--text-tertiary)" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-primary)', borderRadius: 8, color: 'var(--text-primary)' }}
-                    />
-                    <Line type="monotone" dataKey="overall" stroke="#00d4ff" strokeWidth={2} dot={{ fill: '#00d4ff' }} />
-                    <Line type="monotone" dataKey="readiness" stroke="#7b2ffc" strokeWidth={2} dot={{ fill: '#7b2ffc' }} />
-                    <Line type="monotone" dataKey="alignment" stroke="#00ff88" strokeWidth={2} dot={{ fill: '#00ff88' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-primary)" vertical={false} />
+                    <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} domain={[0,100]} />
+                    <Tooltip contentStyle={{ background:'var(--bg-card)', border:'1px solid var(--border-primary)', borderRadius: 8, fontSize: 12 }} />
+                    <Line type="monotone" dataKey="overall" stroke="var(--accent-primary)" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="readiness" stroke="var(--accent-secondary)" strokeWidth={1.5} dot={false} strokeDasharray="4 2" />
                   </LineChart>
                 </ResponsiveContainer>
-              </div>
-            )}
+              ) : (
+                <div style={{ textAlign:'center', padding:'40px 0', color:'var(--text-muted)', fontSize:'var(--fs-sm)' }}>
+                  No assessment data yet — take your first assessment.
+                </div>
+              )}
+            </div>
+
           </div>
         )}
 
@@ -301,11 +392,11 @@ const DashboardPage = () => {
                     </div>
                   ) : plan.isActive ? (
                     <div className="btn btn-success" style={{ width: '100%' }}>
-                      <HiOutlineBadgeCheck /> Active Plan
+                      <HiOutlineBadgeCheck /> Session Booked
                     </div>
                   ) : (
-                    <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => handlePurchasePlan(plan.id)}>
-                      Activate Plan
+                    <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => setBookingPlan(plan)}>
+                      Book Session
                     </button>
                   )}
                 </div>
@@ -327,9 +418,9 @@ const DashboardPage = () => {
                       <XAxis dataKey="name" stroke="var(--text-tertiary)" fontSize={12} />
                       <YAxis stroke="var(--text-tertiary)" fontSize={12} domain={[0, 100]} />
                       <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-primary)', borderRadius: 8, color: 'var(--text-primary)' }} />
-                      <Line type="monotone" dataKey="overall" stroke="#00d4ff" strokeWidth={3} name="Overall Score" dot={{ fill: '#00d4ff', r: 5 }} />
-                      <Line type="monotone" dataKey="readiness" stroke="#7b2ffc" strokeWidth={2} name="Career Readiness" dot={{ fill: '#7b2ffc', r: 4 }} />
-                      <Line type="monotone" dataKey="alignment" stroke="#00ff88" strokeWidth={2} name="Industry Alignment" dot={{ fill: '#00ff88', r: 4 }} />
+                      <Line type="monotone" dataKey="overall" stroke="#4A6D8C" strokeWidth={3} name="Overall Score" dot={{ fill: '#4A6D8C', r: 5 }} />
+                      <Line type="monotone" dataKey="readiness" stroke="#BFA04A" strokeWidth={2} name="Career Readiness" dot={{ fill: '#BFA04A', r: 4 }} />
+                      <Line type="monotone" dataKey="alignment" stroke="#2A6B4A" strokeWidth={2} name="Industry Alignment" dot={{ fill: '#2A6B4A', r: 4 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -341,15 +432,15 @@ const DashboardPage = () => {
                         <PolarGrid stroke="var(--border-primary)" />
                         <PolarAngleAxis dataKey="skill" stroke="var(--text-secondary)" fontSize={11} />
                         <PolarRadiusAxis stroke="var(--text-muted)" fontSize={10} />
-                        <Radar name="Score" dataKey="score" stroke="#00d4ff" fill="#00d4ff" fillOpacity={0.15} strokeWidth={2} />
+                        <Radar name="Score" dataKey="score" stroke="#6366F1" fill="#6366F1" fillOpacity={0.12} strokeWidth={2} />
                       </RadarChart>
                     </ResponsiveContainer>
                   </div>
                 )}
               </>
             ) : (
-              <div className="empty-state glass-card">
-                <span style={{ fontSize: 48 }}>📊</span>
+              <div className="empty-state">
+                <HiOutlineChartBar style={{ fontSize: 44, color: 'var(--text-muted)' }} />
                 <h3>No Analytics Yet</h3>
                 <p>Complete your first assessment to see performance analytics.</p>
                 <button className="btn btn-primary" onClick={() => setActiveTab('assessment')}>
@@ -360,6 +451,11 @@ const DashboardPage = () => {
           </div>
         )}
       </main>
+
+      {/* Booking Modal */}
+      {bookingPlan && (
+        <BookingModal plan={bookingPlan} onClose={() => setBookingPlan(null)} />
+      )}
     </div>
   );
 };
@@ -404,10 +500,10 @@ const AssessmentTab = ({ navigate }) => {
         <h2>Generating Your Personalized Assessment</h2>
         <p>Our AI is analyzing your profile, resume, and target role to create a unique assessment just for you.</p>
         <div className="generating-steps">
-          <div className="gen-step active">📋 Analyzing your profile</div>
-          <div className="gen-step">📄 Processing resume data</div>
-          <div className="gen-step">🔍 Researching industry requirements</div>
-          <div className="gen-step">🧠 Crafting personalized questions</div>
+          <div className="gen-step active"><HiOutlineUser style={{flexShrink:0}} /> Analyzing your profile</div>
+          <div className="gen-step"><HiOutlineDocumentReport style={{flexShrink:0}} /> Processing resume data</div>
+          <div className="gen-step"><HiOutlineAcademicCap style={{flexShrink:0}} /> Researching industry requirements</div>
+          <div className="gen-step"><HiOutlineBadgeCheck style={{flexShrink:0}} /> Crafting personalized questions</div>
         </div>
       </div>
     );
@@ -469,8 +565,8 @@ const PassportTab = ({ passport, profile, latestSkills, streak }) => {
 
   if (!passport || passport.assessments.length === 0) {
     return (
-      <div className="empty-state glass-card">
-        <span style={{ fontSize: 48 }}>🎫</span>
+      <div className="empty-state">
+        <HiOutlineIdentification style={{ fontSize: 44, color: 'var(--text-muted)' }} />
         <h3>No Passport Yet</h3>
         <p>Complete your first assessment to generate your Career Readiness Passport.</p>
       </div>
@@ -478,7 +574,7 @@ const PassportTab = ({ passport, profile, latestSkills, streak }) => {
   }
 
   return (
-    <div className="passport-view">
+    <div className="passport-full-view">
       <div className="passport-card glass-card">
         <div className="passport-header">
           <div className="passport-brand">
@@ -493,20 +589,25 @@ const PassportTab = ({ passport, profile, latestSkills, streak }) => {
           <div>
             <h2>{profile?.name}</h2>
             <p>{profile?.pastRole} • {profile?.domain}</p>
+            {profile?.breakReason && (
+              <p className="passport-break-reason" style={{ fontSize: 'var(--fs-xs)', color: 'var(--indigo)', marginTop: '4px', fontWeight: 600 }}>
+                Reason for Break: {profile.breakReason}
+              </p>
+            )}
           </div>
         </div>
 
         <div className="passport-scores">
           <div className="passport-score-item">
-            <span className="score-value gradient-text">{passport.currentHighestScore}</span>
+            <span className="score-value" style={{ color:'var(--slate)' }}>{passport.currentHighestScore}</span>
             <span className="score-label">Highest Score</span>
           </div>
           <div className="passport-score-item">
-            <span className="score-value" style={{ color: 'var(--accent-tertiary)' }}>{passport.overallGrowth}%</span>
+            <span className="score-value" style={{ color: 'var(--gold)' }}>{passport.overallGrowth}%</span>
             <span className="score-label">Growth</span>
           </div>
           <div className="passport-score-item">
-            <span className="score-value" style={{ color: 'var(--accent-secondary)' }}>{passport.assessments.length}</span>
+            <span className="score-value" style={{ color: 'var(--text-secondary)' }}>{passport.assessments.length}</span>
             <span className="score-label">Assessments</span>
           </div>
         </div>
@@ -519,7 +620,7 @@ const PassportTab = ({ passport, profile, latestSkills, streak }) => {
               <span className="assessment-date">{new Date(a.date).toLocaleDateString()}</span>
               <span className="assessment-role">{a.seekingRole}</span>
               <span className="assessment-score" style={{ 
-                color: a.overallScore >= 80 ? 'var(--accent-tertiary)' : a.overallScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)' 
+                color: a.overallScore >= 80 ? 'var(--success)' : a.overallScore >= 50 ? 'var(--gold)' : 'var(--danger)' 
               }}>
                 {a.overallScore}/100
               </span>
@@ -548,25 +649,25 @@ const PassportTab = ({ passport, profile, latestSkills, streak }) => {
 
         {streak && (
           <div className="passport-skills" style={{ marginTop: 20 }}>
-            <h4>🔥 Career Comeback Streak</h4>
+            <h4 style={{ display:'flex', alignItems:'center', gap:6 }}><HiOutlineFire style={{color:'var(--accent-secondary)'}} /> Career Comeback Streak</h4>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 12 }}>
               <div style={{ background: 'var(--bg-tertiary)', borderRadius: 10, padding: '14px 12px', textAlign: 'center', border: '1px solid var(--border-primary)' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--accent-primary)' }}>{streak.currentStreak}</div>
+                <div style={{ fontFamily:'var(--font-display)', fontSize: 24, fontWeight: 400, color: 'var(--slate)' }}>{streak.currentStreak}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: 4 }}>Current Streak</div>
               </div>
               <div style={{ background: 'var(--bg-tertiary)', borderRadius: 10, padding: '14px 12px', textAlign: 'center', border: '1px solid var(--border-primary)' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--accent-secondary)' }}>{streak.longestStreak}</div>
+                <div style={{ fontFamily:'var(--font-display)', fontSize: 24, fontWeight: 400, color: 'var(--gold)' }}>{streak.longestStreak}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: 4 }}>Longest Streak</div>
               </div>
               <div style={{ background: 'var(--bg-tertiary)', borderRadius: 10, padding: '14px 12px', textAlign: 'center', border: '1px solid var(--border-primary)' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--accent-tertiary)' }}>{streak.freezesAvailable}</div>
+                <div style={{ fontFamily:'var(--font-display)', fontSize: 24, fontWeight: 400, color: 'var(--success)' }}>{streak.freezesAvailable}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: 4 }}>Freeze Left</div>
               </div>
             </div>
             {streak.milestones?.length > 0 && (
               <div style={{ marginTop: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 {streak.milestones.map((m, i) => (
-                  <div key={i} style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid var(--border-primary)', borderRadius: 8, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div key={i} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', borderRadius: 8, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 16 }}>{m.icon}</span>
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.name}</span>
                   </div>

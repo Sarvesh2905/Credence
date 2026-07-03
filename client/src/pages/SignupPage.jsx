@@ -61,9 +61,9 @@ const SignupPage = () => {
     if (/[0-9]/.test(p)) score++;
     if (/[^A-Za-z0-9]/.test(p)) score++;
 
-    if (score <= 2) return { level: score, label: 'Weak', color: 'var(--accent-danger)' };
-    if (score <= 3) return { level: score, label: 'Fair', color: 'var(--accent-warning)' };
-    return { level: score, label: 'Strong', color: 'var(--accent-tertiary)' };
+    if (score <= 2) return { level: score, label: 'Weak',   color: 'var(--danger)' };
+    if (score <= 3) return { level: score, label: 'Fair',   color: 'var(--gold)' };
+    return             { level: score, label: 'Strong', color: 'var(--success)' };
   };
 
   const validate = () => {

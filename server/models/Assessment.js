@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const questionSchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ['mcq', 'scenario', 'code', 'essay', 'case_study', 'ranking', 'debugging', 'design'],
-    required: true,
+    default: 'essay',
   },
   question: { type: String, required: true },
   context: { type: String, default: '' },

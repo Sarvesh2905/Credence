@@ -51,6 +51,21 @@ const startAssessment = async (req, res) => {
         previousAssessments
       );
 
+      // Valid display types — map anything else to closest equivalent
+      const VALID_TYPES = ['mcq', 'scenario', 'code', 'essay', 'case_study', 'ranking', 'debugging', 'design'];
+      const normalizeType = (t) => {
+        if (!t) return 'essay';
+        const lower = t.toLowerCase().replace(/[-\s]/g, '_');
+        if (VALID_TYPES.includes(lower)) return lower;
+        if (lower.includes('mcq') || lower.includes('multiple')) return 'mcq';
+        if (lower.includes('code') || lower.includes('debug') || lower.includes('programming')) return 'code';
+        if (lower.includes('scenario') || lower.includes('situation')) return 'scenario';
+        if (lower.includes('rank') || lower.includes('order') || lower.includes('priority')) return 'ranking';
+        if (lower.includes('design') || lower.includes('architect')) return 'design';
+        if (lower.includes('case')) return 'case_study';
+        return 'essay'; // default fallback
+      };
+
       // Process sections — unlock first section
       const sections = aiResult.sections.map((section, index) => ({
         ...section,
@@ -60,6 +75,9 @@ const startAssessment = async (req, res) => {
         maxSectionScore: section.questions.reduce((sum, q) => sum + (q.maxScore || 10), 0),
         questions: section.questions.map(q => ({
           ...q,
+          type: normalizeType(q.type),
+          options: q.options || [],
+          maxScore: q.maxScore || 10,
           userAnswer: '',
           score: 0,
           feedback: '',
@@ -270,10 +288,69 @@ const submitAssessment = async (req, res) => {
       await passport.save();
     }
 
-    // Update streak
+    // Update streak based on daily assessment completion
     const streak = await Streak.findOne({ userId });
     if (streak) {
-      streak.streakHistory.push({ date: new Date(), activity: 'assessment_completed' });
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (streak.lastActiveDate) {
+        const lastActive = new Date(streak.lastActiveDate);
+        lastActive.setHours(0, 0, 0, 0);
+
+        const diffDays = Math.floor((today - lastActive) / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          // Consecutive day — increment streak
+          streak.currentStreak += 1;
+          streak.lastActiveDate = new Date();
+          streak.streakHistory.push({ date: new Date(), activity: 'assessment_completed' });
+
+          // Check milestones
+          if (streak.currentStreak === 7 && !streak.milestones.find(m => m.type === 'momentum')) {
+            streak.milestones.push({
+              type: 'momentum',
+              name: 'Momentum',
+              description: "7-day streak! You're building momentum.",
+              icon: '🔥',
+              achievedAt: new Date(),
+            });
+          } else if (streak.currentStreak === 30 && !streak.milestones.find(m => m.type === 'unstoppable')) {
+            streak.milestones.push({
+              type: 'unstoppable',
+              name: 'Unstoppable',
+              description: '30-day streak! Nothing can stop you.',
+              icon: '⚡',
+              achievedAt: new Date(),
+            });
+          } else if (streak.currentStreak === 90 && !streak.milestones.find(m => m.type === 'transformed')) {
+            streak.milestones.push({
+              type: 'transformed',
+              name: 'Transformed',
+              description: "90-day streak! You've completely transformed.",
+              icon: '🦅',
+              achievedAt: new Date(),
+            });
+          }
+
+          streak.longestStreak = Math.max(streak.longestStreak, streak.currentStreak);
+        } else if (diffDays > 1) {
+          // Missed a day — reset to 1
+          streak.currentStreak = 1;
+          streak.lastActiveDate = new Date();
+          streak.streakHistory.push({ date: new Date(), activity: 'streak_reset_assessment_completed' });
+        }
+        // diffDays === 0: already did an assessment today, keep the currentStreak but track activity
+        else if (diffDays === 0) {
+          streak.streakHistory.push({ date: new Date(), activity: 'assessment_completed_same_day' });
+        }
+      } else {
+        // First assessment completed
+        streak.currentStreak = 1;
+        streak.lastActiveDate = new Date();
+        streak.streakHistory.push({ date: new Date(), activity: 'assessment_completed_first' });
+      }
+
       await streak.save();
     }
 

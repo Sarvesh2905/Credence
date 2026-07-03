@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { assessmentAPI } from '../services/api';
-import { HiOutlineArrowRight, HiOutlineCheck, HiOutlineLockClosed, HiOutlineClock } from 'react-icons/hi';
+import { HiOutlineArrowRight, HiOutlineCheck, HiOutlineLockClosed, HiOutlineClock,
+  HiOutlineLightBulb, HiOutlineThumbUp, HiOutlineTrendingUp, HiOutlineSparkles,
+  HiOutlineBeaker, HiOutlineChartBar } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import CodeEditor from '../components/assessment/CodeEditor';
 import './AssessmentPage.css';
@@ -132,27 +134,27 @@ const AssessmentPage = () => {
       <div className="results-page">
         <div className="results-container">
           <div className="results-header">
-            <h1>Assessment <span className="gradient-text">Complete</span></h1>
+            <h1>Assessment <span style={{ color:'var(--slate)' }}>Complete</span></h1>
             <p>Here are your results and recommendations.</p>
           </div>
 
           <div className="results-scores">
             <div className="score-card glass-card">
-              <span className="score-big" style={{ color: results.careerReadinessScore >= 80 ? 'var(--accent-tertiary)' : results.careerReadinessScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)' }}>
+              <span className="score-big" style={{ color: results.careerReadinessScore >= 80 ? 'var(--success)' : results.careerReadinessScore >= 50 ? 'var(--gold)' : 'var(--danger)' }}>
                 {results.careerReadinessScore}
               </span>
               <span className="score-label">Career Readiness</span>
               <span className="score-out">/100</span>
             </div>
             <div className="score-card glass-card">
-              <span className="score-big" style={{ color: results.industryAlignmentScore >= 80 ? 'var(--accent-tertiary)' : results.industryAlignmentScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)' }}>
+              <span className="score-big" style={{ color: results.industryAlignmentScore >= 80 ? 'var(--success)' : results.industryAlignmentScore >= 50 ? 'var(--gold)' : 'var(--danger)' }}>
                 {results.industryAlignmentScore}
               </span>
               <span className="score-label">Industry Alignment</span>
               <span className="score-out">/100</span>
             </div>
             <div className="score-card glass-card overall">
-              <span className="score-big gradient-text">{results.overallScore}</span>
+              <span className="score-big" style={{ color:'var(--slate)' }}>{results.overallScore}</span>
               <span className="score-label">Overall Score</span>
               <span className="score-out">/100</span>
             </div>
@@ -160,21 +162,21 @@ const AssessmentPage = () => {
 
           {results.aiSuggestions?.summary && (
             <div className="results-summary glass-card">
-              <h3>💡 AI Summary</h3>
+              <h3 style={{ display:'flex', alignItems:'center', gap:6 }}><HiOutlineLightBulb /> AI Summary</h3>
               <p>{results.aiSuggestions.summary}</p>
             </div>
           )}
 
           <div className="results-grid">
             <div className="results-section glass-card">
-              <h3 style={{ color: 'var(--accent-tertiary)' }}>💪 Strengths</h3>
+              <h3 style={{ color: 'var(--accent-success)', display:'flex', alignItems:'center', gap:6 }}><HiOutlineThumbUp /> Strengths</h3>
               <ul>
                 {results.strengths?.map((s, i) => <li key={i}>{s}</li>)}
               </ul>
             </div>
 
             <div className="results-section glass-card">
-              <h3 style={{ color: 'var(--accent-warning)' }}>📈 Areas to Improve</h3>
+              <h3 style={{ color: 'var(--accent-secondary)', display:'flex', alignItems:'center', gap:6 }}><HiOutlineTrendingUp /> Areas to Improve</h3>
               <ul>
                 {results.weaknesses?.map((w, i) => <li key={i}>{w}</li>)}
               </ul>
@@ -183,7 +185,7 @@ const AssessmentPage = () => {
 
           {results.recommendations?.length > 0 && (
             <div className="results-recommendations glass-card">
-              <h3>🎯 Recommendations</h3>
+              <h3 style={{ display:'flex', alignItems:'center', gap:6 }}><HiOutlineSparkles /> Recommendations</h3>
               <ul>
                 {results.recommendations.map((r, i) => <li key={i}>{r}</li>)}
               </ul>
@@ -192,7 +194,7 @@ const AssessmentPage = () => {
 
           {results.aiSuggestions?.techToLearn?.length > 0 && (
             <div className="results-tech glass-card">
-              <h3>🛠️ Technologies to Learn</h3>
+              <h3 style={{ display:'flex', alignItems:'center', gap:6 }}><HiOutlineBeaker /> Technologies to Learn</h3>
               <div className="tech-tags">
                 {results.aiSuggestions.techToLearn.map((t, i) => (
                   <span key={i} className="tech-tag">{t}</span>
@@ -203,7 +205,7 @@ const AssessmentPage = () => {
 
           {results.skillBreakdown?.length > 0 && (
             <div className="results-skills glass-card">
-              <h3>📊 Skill Breakdown</h3>
+              <h3 style={{ display:'flex', alignItems:'center', gap:6 }}><HiOutlineChartBar /> Skill Breakdown</h3>
               <div className="skill-bars">
                 {results.skillBreakdown.map((s, i) => (
                   <div key={i} className="skill-bar-item">

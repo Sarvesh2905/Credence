@@ -25,22 +25,12 @@ const profileSchema = new mongoose.Schema({
   },
   careerGap: {
     days: { type: Number, required: true },
-    from: { type: Date, required: true },
-    to: { type: Date, required: true },
+    from: { type: Date },
+    to:   { type: Date },
   },
   breakReason: {
     type: String,
-    enum: [
-      'Maternity / Parental Leave',
-      'Personal Health / Medical',
-      'Family Caregiving',
-      'Relocation',
-      'Higher Education',
-      'Personal Choice / Sabbatical',
-      'Layoff / Redundancy',
-      'Entrepreneurship / Self-employment',
-      'Other',
-    ],
+    trim: true,
     default: null,
   },
   areaOfInterest: [{

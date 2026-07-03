@@ -42,7 +42,7 @@ const LoginPage = () => {
       
       // If needs verification, redirect to signup with state
       if (error.response?.data?.needsVerification) {
-        toast('Please verify your email first.', { icon: '📧' });
+        toast('Please verify your email first.');
       }
     } finally {
       setLoading(false);

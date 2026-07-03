@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { HiOutlineDownload } from 'react-icons/hi';
+import { HiOutlineDownload, HiOutlineBadgeCheck, HiOutlineLockClosed } from 'react-icons/hi';
 import './ReportGenerator.css';
 
 const ReportGenerator = ({ passport, profile, streak, onClose }) => {
@@ -15,7 +15,7 @@ const ReportGenerator = ({ passport, profile, streak, onClose }) => {
     try {
       const canvas = await html2canvas(reportRef.current, {
         scale: 2,
-        backgroundColor: '#06080f',
+        backgroundColor: '#FFFFFF',
         useCORS: true,
         logging: false,
       });
@@ -59,105 +59,79 @@ const ReportGenerator = ({ passport, profile, streak, onClose }) => {
 
   return (
     <div className="report-overlay">
-      <div className="report-modal">
-        <div className="report-toolbar">
-          <h3>Career Readiness Report</h3>
-          <div className="report-toolbar-actions">
-            <button className="btn btn-primary" onClick={handleDownload}>
-              <HiOutlineDownload /> Download PDF
-            </button>
-            <button className="btn btn-ghost" onClick={onClose}>Close</button>
-          </div>
+      <div className="report-wrapper">
+        <div className="report-actions">
+          <button className="btn btn-primary" onClick={handleDownload}>
+            <HiOutlineDownload /> Download PDF
+          </button>
+          <button className="btn btn-ghost" onClick={onClose}>Close</button>
         </div>
 
-        <div className="report-preview-scroll">
-          <div className="report-content" ref={reportRef}>
-            {/* Report Header */}
-            <div className="report-header-section">
-              <div className="report-brand">
-                <span className="report-logo">◆</span>
-                <div>
-                  <h1>Credence</h1>
-                  <span>Trust Beyond Resumes</span>
-                </div>
-              </div>
-              <div className="report-meta">
-                <span>Career Readiness Report</span>
-                <span>ID: {passport.credenceId}</span>
-                <span>Generated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+        <div className="report-document" ref={reportRef}>
+          {/* Top Bar */}
+          <div className="report-top-bar">
+            <div className="report-brand">
+              <div>
+                <div className="report-brand-name">Credence</div>
+                <div className="report-brand-tagline">Trust Beyond Resumes</div>
               </div>
             </div>
+            <div className="report-id-block">
+              <div className="report-id">ID: {passport.credenceId}</div>
+              <div className="report-date">Generated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+            </div>
+          </div>
 
-            {/* Candidate Info */}
-            <div className="report-section">
-              <h2 className="report-section-title">Candidate Profile</h2>
-              <div className="report-profile-grid">
-                <div className="report-field">
-                  <span className="field-label">Name</span>
-                  <span className="field-value">{profile.name}</span>
-                </div>
-                <div className="report-field">
-                  <span className="field-label">Domain</span>
-                  <span className="field-value">{profile.domain}</span>
-                </div>
-                <div className="report-field">
-                  <span className="field-label">Past Role</span>
-                  <span className="field-value">{profile.pastRole} at {profile.pastCompany}</span>
-                </div>
-                <div className="report-field">
-                  <span className="field-label">Experience</span>
-                  <span className="field-value">{profile.experience} years</span>
-                </div>
-                <div className="report-field">
-                  <span className="field-label">Career Gap</span>
-                  <span className="field-value">{profile.careerGap?.days} days ({new Date(profile.careerGap?.from).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })} – {new Date(profile.careerGap?.to).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })})</span>
-                </div>
-                {profile.breakReason && (
-                  <div className="report-field">
-                    <span className="field-label">Reason for Break</span>
-                    <span className="field-value">{profile.breakReason}</span>
+          {/* Candidate */}
+          <div className="report-candidate-row">
+            <h2>{profile.name}</h2>
+            <div className="report-field">
+              <label>Domain</label>
+              <span>{profile.domain}</span>
+            </div>
+            <div className="report-field">
+              <label>Past Role</label>
+              <span>{profile.pastRole}{profile.pastCompany ? ` at ${profile.pastCompany}` : ''}</span>
+            </div>
+            <div className="report-field">
+              <label>Career Gap</label>
+              <span>{profile.careerGap?.days} days</span>
+            </div>
+            {profile.breakReason && (
+              <div className="report-field">
+                <label>Reason for Break</label>
+                <span>{profile.breakReason}</span>
+              </div>
+            )}
+            <div className="report-field">
+              <label>Assessments Taken</label>
+              <span>{passport.assessments.length}</span>
+            </div>
+          </div>
+
+          {/* Overall Performance */}
+          <div className="report-section">
+            <h2 className="report-section-title">Overall Performance</h2>
+              <div className="report-score-hero">
+                <span className="score-main">{passport.currentHighestScore}</span>
+                <span className="score-of">out of 100 — Highest Overall Score</span>
+              </div>
+              {latestAssessment && (
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap: 10, marginTop: 12 }}>
+                  <div className="report-streak-item">
+                    <span className="report-streak-value" style={{ color:'var(--slate)' }}>{latestAssessment.careerReadinessScore}</span>
+                    <span className="report-streak-label">Career Readiness</span>
                   </div>
-                )}
-                <div className="report-field">
-                  <span className="field-label">Assessments Taken</span>
-                  <span className="field-value">{passport.assessments.length}</span>
+                  <div className="report-streak-item">
+                    <span className="report-streak-value" style={{ color:'var(--gold)' }}>{latestAssessment.industryAlignmentScore}</span>
+                    <span className="report-streak-label">Industry Alignment</span>
+                  </div>
+                  <div className="report-streak-item">
+                    <span className="report-streak-value" style={{ color:'var(--success)' }}>{passport.overallGrowth}%</span>
+                    <span className="report-streak-label">Growth</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Overall Scores */}
-            <div className="report-section">
-              <h2 className="report-section-title">Overall Performance</h2>
-              <div className="report-scores-row">
-                <div className="report-score-box">
-                  <span className="report-score-value" style={{ color: '#00d4ff' }}>
-                    {passport.currentHighestScore}
-                  </span>
-                  <span className="report-score-name">Highest Score</span>
-                </div>
-                {latestAssessment && (
-                  <>
-                    <div className="report-score-box">
-                      <span className="report-score-value" style={{ color: '#7b2ffc' }}>
-                        {latestAssessment.careerReadinessScore}
-                      </span>
-                      <span className="report-score-name">Career Readiness</span>
-                    </div>
-                    <div className="report-score-box">
-                      <span className="report-score-value" style={{ color: '#00ff88' }}>
-                        {latestAssessment.industryAlignmentScore}
-                      </span>
-                      <span className="report-score-name">Industry Alignment</span>
-                    </div>
-                  </>
-                )}
-                <div className="report-score-box">
-                  <span className="report-score-value" style={{ color: '#ffbb33' }}>
-                    {passport.overallGrowth}%
-                  </span>
-                  <span className="report-score-name">Growth</span>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Assessment History */}
@@ -182,7 +156,7 @@ const ReportGenerator = ({ passport, profile, streak, onClose }) => {
                       <td>{a.seekingRole}</td>
                       <td>{a.careerReadinessScore}/100</td>
                       <td>{a.industryAlignmentScore}/100</td>
-                      <td style={{ fontWeight: 700, color: a.overallScore >= 80 ? '#00ff88' : a.overallScore >= 50 ? '#ffbb33' : '#ff4757' }}>
+                      <td style={{ fontWeight: 700, color: a.overallScore >= 80 ? 'var(--success)' : a.overallScore >= 50 ? 'var(--gold)' : 'var(--danger)' }}>
                         {a.overallScore}/100
                       </td>
                     </tr>
@@ -207,7 +181,7 @@ const ReportGenerator = ({ passport, profile, streak, onClose }) => {
                           className="report-skill-fill"
                           style={{
                             width: `${(s.score / (s.maxScore || 100)) * 100}%`,
-                            background: s.score >= 80 ? '#00ff88' : s.score >= 50 ? '#ffbb33' : '#ff4757',
+                            background: s.score >= 80 ? 'var(--success)' : s.score >= 50 ? 'var(--gold)' : 'var(--danger)',
                           }}
                         />
                       </div>
@@ -239,28 +213,28 @@ const ReportGenerator = ({ passport, profile, streak, onClose }) => {
             {streak && (
               <div className="report-section">
                 <h2 className="report-section-title">Career Comeback Streak</h2>
-                <div className="report-scores-row">
-                  <div className="report-score-box">
-                    <span className="report-score-value" style={{ color: '#00d4ff' }}>{streak.currentStreak}</span>
-                    <span className="report-score-name">Current Streak</span>
+                <div className="report-streak-grid">
+                  <div className="report-streak-item">
+                    <span className="report-streak-value" style={{ color:'var(--slate)' }}>{streak.currentStreak}</span>
+                    <span className="report-streak-label">Current Streak</span>
                   </div>
-                  <div className="report-score-box">
-                    <span className="report-score-value" style={{ color: '#7b2ffc' }}>{streak.longestStreak}</span>
-                    <span className="report-score-name">Longest Streak</span>
+                  <div className="report-streak-item">
+                    <span className="report-streak-value" style={{ color:'var(--gold)' }}>{streak.longestStreak}</span>
+                    <span className="report-streak-label">Longest Streak</span>
                   </div>
-                  <div className="report-score-box">
-                    <span className="report-score-value" style={{ color: '#ffbb33' }}>{streak.milestones?.length || 0}</span>
-                    <span className="report-score-name">Milestones</span>
+                  <div className="report-streak-item">
+                    <span className="report-streak-value" style={{ color:'var(--success)' }}>{streak.milestones?.length || 0}</span>
+                    <span className="report-streak-label">Milestones</span>
                   </div>
                 </div>
                 {streak.milestones?.length > 0 && (
                   <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                     {streak.milestones.map((m, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(0,212,255,0.06)', border: '1px solid #1e293b', borderRadius: 8, padding: '6px 14px' }}>
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', borderRadius: 8, padding: '6px 14px' }}>
                         <span style={{ fontSize: 18 }}>{m.icon}</span>
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#e0e0e0' }}>{m.name}</div>
-                          <div style={{ fontSize: 11, color: '#5a6080' }}>{m.description}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{m.name}</div>
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{m.description}</div>
                         </div>
                       </div>
                     ))}
@@ -273,7 +247,7 @@ const ReportGenerator = ({ passport, profile, streak, onClose }) => {
             <div className="report-section">
               <h2 className="report-section-title">Hiring Eligibility</h2>
               <div className={`report-eligibility ${passport.isHiringEligible ? 'eligible' : 'not-eligible'}`}>
-                <span className="eligibility-icon">{passport.isHiringEligible ? '✅' : '🔒'}</span>
+                <span className="eligibility-icon" style={{ fontSize: 18, display:'flex' }}>{passport.isHiringEligible ? <HiOutlineBadgeCheck /> : <HiOutlineLockClosed />}</span>
                 <div>
                   <h3>{passport.isHiringEligible ? 'Eligible for Hiring Plan' : 'Not Yet Eligible'}</h3>
                   <p>{passport.isHiringEligible
@@ -284,22 +258,12 @@ const ReportGenerator = ({ passport, profile, streak, onClose }) => {
               </div>
             </div>
 
-            {/* Verification Footer */}
-            <div className="report-footer">
-              <div className="report-verification">
-                <p>This report is generated by Credence — an AI-powered career readiness verification platform.</p>
-                <p>Passport ID: <strong>{passport.credenceId}</strong></p>
-                <p className="report-disclaimer">
-                  This document is a proof of the candidate's assessed career readiness. 
-                  Scores are AI-evaluated and represent the candidate's performance at the time of assessment.
-                </p>
-              </div>
-              <div className="report-brand-footer">
-                <span className="report-logo-sm">◆</span>
-                <span>Credence — Trust Beyond Resumes</span>
-              </div>
-            </div>
+          {/* Footer */}
+          <div className="report-footer">
+            <span>Credence — Trust Beyond Resumes</span>
+            <span>ID: {passport.credenceId} · AI-evaluated career readiness assessment</span>
           </div>
+
         </div>
       </div>
     </div>

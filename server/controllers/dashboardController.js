@@ -29,7 +29,7 @@ const getStreak = async (req, res) => {
       await streak.save();
     }
 
-    // Check if streak should be updated (daily login)
+    // Check if streak should be reset (if they missed a day of assessment)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -39,50 +39,13 @@ const getStreak = async (req, res) => {
 
       const diffDays = Math.floor((today - lastActive) / (1000 * 60 * 60 * 24));
 
-      if (diffDays === 1) {
-        // Consecutive day — increment streak
-        streak.currentStreak += 1;
-        streak.lastActiveDate = new Date();
-        streak.streakHistory.push({ date: new Date(), activity: 'daily_login' });
-
-        // Check milestones
-        if (streak.currentStreak === 7 && !streak.milestones.find(m => m.type === 'momentum')) {
-          streak.milestones.push({
-            type: 'momentum',
-            name: 'Momentum',
-            description: '7-day streak! You\'re building momentum.',
-            icon: '🔥',
-            achievedAt: new Date(),
-          });
-        } else if (streak.currentStreak === 30 && !streak.milestones.find(m => m.type === 'unstoppable')) {
-          streak.milestones.push({
-            type: 'unstoppable',
-            name: 'Unstoppable',
-            description: '30-day streak! Nothing can stop you.',
-            icon: '⚡',
-            achievedAt: new Date(),
-          });
-        } else if (streak.currentStreak === 90 && !streak.milestones.find(m => m.type === 'transformed')) {
-          streak.milestones.push({
-            type: 'transformed',
-            name: 'Transformed',
-            description: '90-day streak! You\'ve completely transformed.',
-            icon: '🦅',
-            achievedAt: new Date(),
-          });
-        }
-
-        streak.longestStreak = Math.max(streak.longestStreak, streak.currentStreak);
-      } else if (diffDays > 1) {
-        // Streak broken
-        streak.currentStreak = 1;
-        streak.lastActiveDate = new Date();
-        streak.streakHistory.push({ date: new Date(), activity: 'streak_reset' });
+      if (diffDays > 1) {
+        // More than 1 day has passed since last assessment — reset to 0
+        streak.currentStreak = 0;
+        streak.streakHistory.push({ date: new Date(), activity: 'streak_reset_missed_day' });
       }
-      // diffDays === 0: same day, no change needed
     } else {
-      streak.currentStreak = 1;
-      streak.lastActiveDate = new Date();
+      streak.currentStreak = 0;
     }
 
     // Weekly freeze reset
