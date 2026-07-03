@@ -12,6 +12,11 @@
 
 ---
 
+## 🌐 Live Demo
+- **Frontend (Vercel):** [https://credence-nine.vercel.app](https://credence-nine.vercel.app)
+- **Backend API (Render):** [https://credence-server-5r0p.onrender.com](https://credence-server-5r0p.onrender.com)
+
+---
 ## 🎯 What It Does
 
 Credence bridges the critical gap between career re-entry professionals and employers by replacing assumptions with verified proof. It uses AI to generate deeply personalized, role-specific assessments for any profession — marketing, engineering, HR, design, and more — then issues a verifiable **Career Readiness Passport** that candidates can share as proof of their skills. For professionals who took a career break for caregiving, health, education, or personal reasons, Credence is the platform that finally gives them a fair chance to say: *"I'm ready. Here's the proof."*
@@ -258,7 +263,6 @@ VITE_FIREBASE_APP_ID=your_firebase_app_id
 
 If we had more time, we'd add:
 
-- 🌐 **Deployed Production Build** — Vercel (frontend) + Railway (backend)
 - 💳 **Razorpay Integration** — Real payment gateway for Mentorship and Hiring plans
 - 🎙️ **Voice Assessment** — Deepgram-powered voice evaluation for Teacher/HR roles
 - 📱 **Native Mobile Apps** — React Native iOS and Android
